@@ -97,3 +97,59 @@ app.use((req,res)=>{
 app.listen(8080,()=>{
     console.log("Listen to port 8080");
 });
+
+
+
+
+
+// THIS ALL EXAMPLE IS DONE IN THE FOLDER OF WHATSAPP(CHAT PROJECT)
+
+// for handling error in aysnc class we can use try catch block and asyncWrap function
+
+// Simple example -> in aysnc function next is not call automatically like in without async function so we have to use next instead of throw 
+app.get("/chats/id:",async(req,res)=>{
+    
+        let {id} = req.params;
+        let chat = await Chat.findById(id);
+        if(!chat){
+            next(new ExpressError(500, "chat not found"));
+        }
+        res.render("edit.ejs",{chat});
+   
+}) ;
+
+
+//  example of try catch
+app.get("/chats",async(req,res)=>{
+    try{
+        let {id} = req.params;
+        let chat = await Chat.findById(id);
+        if(!chat){
+            next(new ExpressError(500, "chat not found"));
+        }
+        res.render("edit.ejs",{chat});
+    }catch(err){
+        next(err);
+    }
+}) ;
+
+
+// Example aysncWrap
+
+function asyncWrap(fn){
+    return function(req, res, next){
+        fn(req, res, next).catch((err)=>next(err));
+    };
+}
+
+
+app.get("/chats", asyncWrap(async(req,res)=>{
+    
+        let {id} = req.params;
+        let chat = await Chat.findById(id);
+        if(!chat){
+            next(new ExpressError(500, "chat not found"));
+        }
+        res.render("edit.ejs",{chat});
+   
+}) );
